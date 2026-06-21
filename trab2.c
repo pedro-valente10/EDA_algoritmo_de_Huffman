@@ -1,4 +1,5 @@
 // Pedro Henrique Padilha Valente - 2510382
+//Henrique Rocha Baumeier - 2510744
 
 #include <stdio.h>
 #include <stdlib.h>
