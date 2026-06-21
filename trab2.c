@@ -239,7 +239,7 @@ int main()
     }
     printf("%s\n", encodedString);
     printf("Total de bits na string original (8 bits por char): %d bits\n", n * 8);
-    printf("Total de bits na string compactada: %lu bits\n", strlen(encodedString));
+    printf("Total de bits na string compactada: %zu bits\n", strlen(encodedString));
     printf("--------------------------------------------------\n\n");
 
     // Descompactação
