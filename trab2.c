@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define MAX_TREE_HT 256
+#define MAX_TEXT_SIZE 1000000 // tamanho maximo do texto lido do arquivo
 
 // Estrutura para o nó da árvore de Huffman
 struct MinHeapNode 
@@ -156,7 +157,10 @@ void storeCodes(struct MinHeapNode* root, int arr[], int top)
         storeCodes(root->right, arr, top + 1);
     }
     if (isLeaf(root)) {
-        printf(" '%c'\t\t%d\t\t", root->data, top);
+        if (root->data == '\n')
+            printf(" '\\n'\t\t%d\t\t", top);
+        else
+            printf(" '%c'\t\t%d\t\t", root->data, top);
         for (int i = 0; i < top; ++i) {
             printf("%d", arr[i]);
             codes[(unsigned char)root->data][i] = arr[i] + '0';
@@ -185,16 +189,67 @@ void decodeFile(struct MinHeapNode* root, char* encodedString)
     printf("\n");
 }
 
-int main() 
+// Lê todo o conteúdo de um arquivo .txt para um buffer alocado dinamicamente.
+// Retorna o tamanho do texto lido (em number de caracteres), ou -1 em caso de erro.
+long readTextFromFile(const char* filename, char** outBuffer) 
 {
-    // Frase de teste fornecida no roteiro do trabalho
-    char text[] = "AS ESTRUTURAS DE DADOS SAO FUNDAMENTAIS PARA A ORGANIZACAO E A MANIPULACAO EFICIENTE DAS INFORMACOES";
-    
+    FILE* file = fopen(filename, "rb");
+    if (file == NULL) {
+        return -1;
+    }
+
+    // Descobre o tamanho do arquivo
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    if (fileSize <= 0) {
+        fclose(file);
+        return -1;
+    }
+
+    if (fileSize > MAX_TEXT_SIZE) {
+        fileSize = MAX_TEXT_SIZE;
+    }
+
+    // Aloca buffer com espaço para o terminador nulo
+    char* buffer = (char*)malloc((fileSize + 1) * sizeof(char));
+    if (buffer == NULL) {
+        fclose(file);
+        return -1;
+    }
+
+    size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
+    buffer[bytesRead] = '\0';
+
+    fclose(file);
+
+    *outBuffer = buffer;
+    return (long)bytesRead;
+}
+
+int main(int argc, char* argv[]) 
+{
+    // Verifica se o nome do arquivo foi passado como argumento na linha de comando
+    if (argc < 2) {
+        printf("Uso: %s <arquivo_de_entrada.txt>\n", argv[0]);
+        return 1;
+    }
+
+    char* text = NULL;
+    long n = readTextFromFile(argv[1], &text);
+
+    if (n <= 0) {
+        printf("Erro: nao foi possivel ler o arquivo '%s' ou o arquivo esta vazio.\n", argv[1]);
+        return 1;
+    }
+
+    printf("Arquivo lido com sucesso: %s (%ld caracteres)\n\n", argv[1], n);
+
     int freqMap[256] = {0};
-    int n = strlen(text);
 
     // Conta a frequência de cada caractere
-    for (int i = 0; i < n; i++) {
+    for (long i = 0; i < n; i++) {
         freqMap[(unsigned char)text[i]]++;
     }
 
@@ -214,38 +269,43 @@ int main()
         if (freqMap[i] > 0) {
             data[idx] = (char)i;
             freq[idx] = freqMap[i];
-            printf(" '%c'\t\t%d\n", data[idx], freq[idx]);
+            if (data[idx] == '\n')
+                printf(" '\\n'\t\t%d\n", freq[idx]);
+            else
+                printf(" '%c'\t\t%d\n", data[idx], freq[idx]);
             idx++;
         }
     }
     printf("--------------------------------------------------\n\n");
 
-    // Constrói a árvore de Huffman
+    // Constrói a árvore
     struct MinHeapNode* root = buildHuffmanTree(data, freq, uniqueChars);
 
     int arr[MAX_TREE_HT], top = 0;
     
-    // Imprime a tabela de códigos e tamanhos (exigência do relatório)
     printf("=== TABELA DE CODIGOS BINARIOS ===\n");
     printf("Caractere\tTamanho(bits)\tCodigo\n");
     storeCodes(root, arr, top);
     printf("--------------------------------------------------\n\n");
 
-    // Compactação (Geração da string de bits)
     printf("=== TEXTO COMPACTADO ===\n");
-    char encodedString[2048] = ""; 
-    for (int i = 0; i < n; i++) {
+    // Buffer dinâmico para a string codificada, dimensionado para o texto do arquivo
+    char* encodedString = (char*)malloc((n * MAX_TREE_HT + 1) * sizeof(char));
+    encodedString[0] = '\0';
+    for (long i = 0; i < n; i++) {
         strcat(encodedString, codes[(unsigned char)text[i]]);
     }
     printf("%s\n", encodedString);
-    printf("Total de bits na string original (8 bits por char): %d bits\n", n * 8);
+    printf("Total de bits na string original (8 bits por char): %ld bits\n", n * 8);
     printf("Total de bits na string compactada: %zu bits\n", strlen(encodedString));
     printf("--------------------------------------------------\n\n");
 
-    // Descompactação
     printf("=== TEXTO DESCOMPACTADO ===\n");
     decodeFile(root, encodedString);
     printf("--------------------------------------------------\n");
+
+    free(text);
+    free(encodedString);
 
     return 0;
 }
