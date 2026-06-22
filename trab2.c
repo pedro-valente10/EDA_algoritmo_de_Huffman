@@ -8,7 +8,6 @@
 #define MAX_TREE_HT 256
 #define MAX_TEXT_SIZE 1000000 // tamanho maximo do texto lido do arquivo
 
-// Estrutura para o nó da árvore de Huffman
 struct MinHeapNode 
 {
     char data;
@@ -24,11 +23,9 @@ struct MinHeap
     struct MinHeapNode** array;
 };
 
-// Tabela para armazenar os códigos gerados
 char codes[256][MAX_TREE_HT];
 int code_lengths[256];
 
-// Função para criar um novo nó
 struct MinHeapNode* newNode(char data, unsigned freq)
  {
     struct MinHeapNode* temp = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
@@ -38,7 +35,6 @@ struct MinHeapNode* newNode(char data, unsigned freq)
     return temp;
 }
 
-// Função para criar um Min Heap
 struct MinHeap* createMinHeap(unsigned capacity)
  {
     struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
@@ -48,7 +44,6 @@ struct MinHeap* createMinHeap(unsigned capacity)
     return minHeap;
 }
 
-// Troca dois nós do Min Heap
 void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b)
  {
     struct MinHeapNode* t = *a;
@@ -56,7 +51,6 @@ void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b)
     *b = t;
 }
 
-// Mantém a propriedade do Min Heap
 void minHeapify(struct MinHeap* minHeap, int idx) 
 {
     int smallest = idx;
@@ -75,13 +69,11 @@ void minHeapify(struct MinHeap* minHeap, int idx)
     }
 }
 
-// Verifica se o tamanho é 1
 int isSizeOne(struct MinHeap* minHeap) 
 {
     return (minHeap->size == 1);
 }
 
-// Extrai o nó de menor frequência
 struct MinHeapNode* extractMin(struct MinHeap* minHeap)
  {
     struct MinHeapNode* temp = minHeap->array[0];
