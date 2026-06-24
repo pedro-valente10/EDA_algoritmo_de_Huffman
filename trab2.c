@@ -6,8 +6,7 @@
 #include <string.h>
 
 #define MAX_TREE_HT 256
-#define MAX_TEXT_SIZE 1000000 // tamanho maximo suportado do arquivo de texto
-
+#define MAX_TEXT_SIZE 1000000
 struct MinHeapNode 
 {
     char data;
@@ -15,7 +14,7 @@ struct MinHeapNode
     struct MinHeapNode *left, *right;
 };
 
-// Estrutura para a fila de prioridade (Min Heap)
+
 struct MinHeap
  {
     unsigned size;
@@ -83,7 +82,7 @@ struct MinHeapNode* extractMin(struct MinHeap* minHeap)
     return temp;
 }
 
-// Insere um novo nó no Min Heap
+
 void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) 
 {
     ++minHeap->size;
@@ -129,7 +128,7 @@ struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size)
     while (!isSizeOne(minHeap)) {
         left = extractMin(minHeap);
         right = extractMin(minHeap);
-        top = newNode('$', left->freq + right->freq); // '$' é um caractere interno
+        top = newNode('$', left->freq + right->freq); // '$'
         top->left = left;
         top->right = right;
         insertMinHeap(minHeap, top);
