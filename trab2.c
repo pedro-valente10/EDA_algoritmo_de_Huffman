@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define MAX_TREE_HT 256
-#define MAX_TEXT_SIZE 1000000 // tamanho maximo do texto lido do arquivo
+#define MAX_TEXT_SIZE 1000000 // tamanho maximo suportado do arquivo de texto
 
 struct MinHeapNode 
 {
